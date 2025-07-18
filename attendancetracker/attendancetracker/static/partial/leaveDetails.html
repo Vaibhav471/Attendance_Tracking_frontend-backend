@@ -1,0 +1,215 @@
+<div   style="background: #f5ebe0" ng-controller="leaveController">
+  <!-- Sidebar Overlay -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- Sidebar -->
+  <div class="sidebar bg-white shadow" id="sidebar">
+    <div class="d-flex flex-column h-100">
+      <div class="sidebar-header bg-gradient bg-danger text-white p-3">
+        <div class="d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center">
+            <div>
+              <h5 class="mb-0">Menu</h5>
+              <small class="opacity-75">Attendance System</small>
+            </div>
+          </div>
+          <button class="btn btn-sm btn-outline-light" id="sidebarClose">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      </div>
+
+      <nav class="flex-grow-1 p-3 overflow-auto">
+        <ul class="nav flex-column">
+          <li class="nav-item">
+            <a
+              class="nav-link active bg-primary text-white rounded-3 mb-2"
+              href="#!/welcome"
+            >
+              <i class="fas fa-home me-2"></i>Dashboard
+            </a>
+          </li>
+          <li class="nav-item">
+            <button
+              ng-disabled="status === 'online'"
+              class="nav-link text-dark rounded-3 mb-2"
+              ng-click="markAttendance()"
+            >
+              <i class="fas fa-calendar-check me-2"></i>Mark Attendance
+            </button>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-dark rounded-3 mb-2" href="#">
+              <i class="fas fa-history me-2"></i>Attendance History
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-dark rounded-3 mb-2" href="#">
+              <i class="fas fa-users me-2"></i>Team Status
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-dark rounded-3 mb-2" href="#">
+              <i class="fas fa-chart-bar me-2"></i>Reports
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-dark rounded-3 mb-2" href="#">
+              <i class="fas fa-cog me-2"></i>Settings
+            </a>
+          </li>
+        </ul>
+      </nav>
+      <div class="p-3 border-top">
+        <a class="nav-link text-dark rounded-3" href="#">
+          <i class="fas fa-sign-out-alt me-2"></i>Logout
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="fixed-top shadow-sm" style="background: #7f5539">
+    <div class="container-fluid">
+      <div class="d-flex justify-content-between align-items-center py-3">
+        <div class="d-flex align-items-center">
+          <button class="btn btn-outline-light me-3" id="sidebarToggle">
+            <i class="fas fa-bars"></i>
+          </button>
+          <div class="mb-3">
+            <img
+              src="static/images/DjuboWebsiteLogo.png"
+              alt="Djubo Logo"
+              class="bg-white p-2 rounded-3 border"
+              style="width: 180px; height: 90px; object-fit: contain"
+            />
+          </div>
+        </div>
+        <div class="d-flex align-items-center">
+          <div class="me-3 text-end d-none d-md-block">
+            <div class="fw-semibold text-white">{{loggedInUser.name}}</div>
+            <small class="text-white">Software Developer</small>
+          </div>
+          <div
+            class="rounded-circle bg-primary d-flex align-items-center justify-content-center"
+            style="width: 45px; height: 45px"
+          >
+            <i class="fas fa-user text-white"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="container-fluid py-4" style="margin-top: 10rem">
+    <div class="row">
+      <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h2 class="mb-0">
+            <i class="fas fa-calendar-alt me-2"></i>
+            Leave Details
+          </h2>
+        </div>
+
+        <!-- Leave Requests Pending for Approval Section -->
+        <div class="card mb-4">
+          <div
+            class="card-header bg-warning text-dark collapse-toggle"
+            data-bs-toggle="collapse"
+            data-bs-target="#pendingLeaves"
+          >
+            <h5 class="mb-0 d-flex justify-content-between align-items-center">
+              <span>
+                <i class="fas fa-clock me-2"></i>
+                Leave Requests (Pending for Approval)
+                <span class="badge bg-dark ms-2">{{leaveRequestsCount}}</span>
+              </span>
+              <i class="fas fa-chevron-down"></i>
+            </h5>
+          </div>
+          <div class="collapse" id="pendingLeaves">
+            <div class="card-body row">
+              <div class="col-3 mw-auto" ng-repeat="item in leaveRequests">
+                <div>
+                  <div class="card leave-card h-100">
+                    <div class="card-body">
+                      <div
+                        class="d-flex justify-content-between align-items-start mb-3"
+                      >
+                        <span class="leave-type">{{ item.type }}</span>
+                        <span class="badge bg-warning text-dark status-badge"
+                          >{{ item.status }}</span>
+                      </div>
+                      <div class="row text-center mb-3">
+                        <div class="col-12">
+                          <div class="days-count">
+                            <strong
+                              >{{ item.startDate | date:'dd MMM yyyy' }} - {{
+                              item.endDate | date:'dd MMM yyyy' }}</strong
+                            ><br />
+                          </div>
+                        </div>
+                      </div>
+                      <p class="card-text small">{{ item.reason }}</p>
+                      <div class="text-muted small">
+                        <i class="fas fa-paper-plane me-1"></i>
+                        {{ item.submitDate | date:'dd MMM yyyy, hh:mm a' }}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Leave History Section -->
+        <div class="card">
+          <div class="section-header">
+            <h5 class="mb-0">
+              <i class="fas fa-history me-2"></i>
+              Leave History
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-hover text-center">
+                <thead class="table-dark">
+                  <tr>
+                    <th>Leave Type</th>
+                    <th>From</th>
+                    <th>Till</th>
+                    <th>Status</th>
+                    <th>Applied On</th>
+                    <th>Reason</th>
+                  </tr>
+                </thead>
+                <tbody ng-repeat="item in leaveHistory track by $index">
+                  <tr class="history-item">
+                    <td>
+                      <span class="leave-type">{{item.type}}</span>
+                    </td>
+                    <td><strong>{{item.startDate | date:'dd MMM yyyy'}}</strong><br /></td>
+                    <td><strong>{{item.endDate | date:'dd MMM yyyy'}}</strong><br /></td>
+                    <td>
+                      <span
+                        class="badge"
+                        ng-class="{'bg-danger': item.status === 'rejected',
+                                                                            'bg-success': item.status === 'approved'}"
+                        >{{item.status}}</span
+                      >
+                    </td>
+                    <td>
+                      <small>{{item.submitDate | date:'dd MMM yyyy'}}</small>
+                    </td>
+                    <td>{{item.reason}}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

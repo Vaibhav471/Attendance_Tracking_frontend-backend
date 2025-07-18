@@ -1,0 +1,44 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" ng-app="myApp" ng-controller="myCtrl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- External Libraries -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-route/1.8.3/angular-route.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+
+    <!-- App Scripts -->
+    <script src="{% static 'js/mainCtrl.js' %}"></script>
+    <script src="{% static 'js/routes.js' %}"></script>
+    
+    <!-- Controllers -->
+    <script src="{% static 'js/controllers/welcomeCtrl.js' %}"></script>
+    <script src="{% static 'js/controllers/loginCtrl.js' %}"></script>
+    <script src="{% static 'js/controllers/leaveDetailsCtrl.js' %}"></script>
+    <script src="{% static 'js/controllers/adminLoginCtrl.js' %}"></script>
+    <script src="{% static 'js/controllers/adminWelcomeCtrl.js' %}"></script>
+    
+    <!-- Services -->
+    <script src="{% static 'js/service/userService.js' %}"></script>
+    <script src="{% static 'js/service/attendanceRecordsService.js' %}"></script>
+    <script src="{% static 'js/service/leaveService.js' %}"></script>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="{% static 'styles/welcome.css' %}">
+    <link rel="stylesheet" href="{% static 'styles/adminwelcome.css' %}">
+    <link rel="stylesheet" href="{% static 'styles/leavedetails.css' %}">
+
+    <title>Djubo AngularJS App</title>
+</head>
+<body>
+    <div ng-view></div>
+</body>
+</html>

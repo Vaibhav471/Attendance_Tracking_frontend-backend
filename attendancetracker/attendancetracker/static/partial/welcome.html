@@ -1,0 +1,295 @@
+<div class="bg-gradient" style="background: #f5ebe0" ng-controller="welcomeController">
+  <!-- Sidebar Overlay -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- Sidebar -->
+  <div class="sidebar bg-white shadow" id="sidebar">
+    <div class="d-flex flex-column h-100">
+      <div class="sidebar-header bg-gradient bg-danger text-white p-3">
+        <div class="d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center">
+            <div>
+              <h5 class="mb-0">Menu</h5>
+              <small class="opacity-75">Attendance System</small>
+            </div>
+          </div>
+          <button class="btn btn-sm btn-outline-light" id="sidebarClose">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      </div>
+
+      <nav class="flex-grow-1 p-3 overflow-auto">
+        <ul class="nav flex-column">
+          <li class="nav-item">
+            <a class="nav-link active bg-primary text-white rounded-3 mb-2" href="#">
+              <i class="fas fa-home me-2"></i>Dashboard
+            </a>
+          </li>
+          <li class="nav-item">
+            <button ng-disabled="status === 'online'" class="nav-link text-dark rounded-3 mb-2"
+              ng-click="markAttendance()">
+              <i class="fas fa-calendar-check me-2"></i>Mark Attendance
+            </button>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-dark rounded-3 mb-2" href="#">
+              <i class="fas fa-history me-2"></i>Attendance History
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-dark rounded-3 mb-2" href="#">
+              <i class="fas fa-users me-2"></i>Team Status
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-dark rounded-3 mb-2" href='#!/leave-details'>
+              <i class="fas fa-file-alt me-2"></i>Leave Details
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-dark rounded-3 mb-2" href="#">
+              <i class="fas fa-chart-bar me-2"></i>Reports
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-dark rounded-3 mb-2" href="#">
+              <i class="fas fa-cog me-2"></i>Settings
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+      <div class="p-3 border-top">
+        <a class="nav-link text-dark rounded-3" href="#">
+          <i class="fas fa-sign-out-alt me-2"></i>Logout
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="fixed-top shadow-sm" style="background: #7f5539">
+    <div class="container-fluid">
+      <div class="d-flex justify-content-between align-items-center py-3">
+        <div class="d-flex align-items-center">
+          <button class="btn btn-outline-light me-3" id="sidebarToggle">
+            <i class="fas fa-bars"></i>
+          </button>
+          <div class="mb-3">
+            <img src="static/images/DjuboWebsiteLogo.png" alt="Djubo Logo" class="bg-white p-2 rounded-3 border"
+              style="width: 180px; height: 90px; object-fit: contain" />
+          </div>
+        </div>
+        <div class="d-flex align-items-center">
+          <div class="me-3 text-end d-none d-md-block">
+            <div class="fw-semibold text-white">{{loggedInUser.name}}</div>
+            <small class="text-white">Software Developer</small>
+          </div>
+          <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center"
+            style="width: 45px; height: 45px">
+            <i class="fas fa-user text-white"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <div class="container-fluid">
+      <!-- Welcome Section -->
+      <div class="bg-white bg-opacity-10 rounded-4 p-4 mb-4 backdrop-filter blur-5">
+        <p class="text-white text-opacity-75 mb-0">
+          welcome section
+        </p>
+      </div>
+
+      <!-- Today's Status -->
+      <div class="container mt-4">
+        <h4 class="text-center fw-bold mb-4">Today's Attendance Status</h4>
+        <div class="row g-4 justify-content-center">
+
+          <div class="col-12 col-md-4">
+            <div class="card shadow-sm border-0 rounded-4">
+              <div class="card-body text-center">
+                <h6 class="text-muted mb-2">Logged In</h6>
+                <h5 class="text-success fw-semibold">{{ attendance.checkin || '--:--' }}</h5>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-12 col-md-4">
+            <div class="card shadow-sm border-0 rounded-4">
+              <div class="card-body text-center">
+                <h6 class="text-muted mb-2">Break Start</h6>
+                <h5 class="text-warning fw-semibold">{{ attendance.breakStart || '--:--' }}</h5>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-12 col-md-4">
+            <div class="card shadow-sm border-0 rounded-4">
+              <div class="card-body text-center">
+                <h6 class="text-muted mb-2">Break End</h6>
+                <h5 class="text-info fw-semibold">{{ attendance.breakEnd || '--:--' }}</h5>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+
+
+      <div class="row g-4 mt-3">
+        <!-- Left Section - Personal Attendance -->
+        <div style="width: fin-content">
+          <div class="card border-0 shadow">
+            <div class="card-body p-4">
+              <div class="d-flex align-items-center mb-4">
+                <i class="fas fa-user-clock text-primary fs-3 me-3"></i>
+                <h5 class="card-title mb-0 fw-bold">Your Attendance</h5>
+              </div>
+
+              <!-- Quick Actions -->
+              <div class="row g-3 mb-4">
+                <div class="col-6">
+                  <button class="btn btn-success w-100 rounded-3 py-2" ng-disabled="status === 'online'"
+                    id="mark-present" ng-click="markAttendance()">
+                    <i class="fas fa-check me-2"></i>Mark Present
+                  </button>
+                </div>
+                <div class="col-6">
+                  <button class="btn btn-warning w-100 rounded-3 py-2" id="mark-break" ng-click="markBreak()"
+                    ng-disabled="status==='offline'">
+                    <i class="fas fa-pause me-2" ng-if="!break"></i>
+                    <span ng-if="!break">Mark Break</span>
+
+                    <i class="fas fa-play me-2" ng-if="break"></i>
+                    <span ng-if="break">Mark Back</span>
+                  </button>
+                </div>
+                <div class="col-6">
+                  <button class="btn btn-primary w-100 rounded-3 py-2" data-bs-toggle="modal"
+                    data-bs-target="#leaveModal">
+                    <i class="fas fa-calendar-plus me-2"></i>Apply for Leave
+                  </button>
+                </div>
+                <div class="modal fade" id="leaveModal" tabindex="-1" aria-labelledby="leaveModalLabel"
+                  aria-hidden="false">
+                  <div class="modal-dialog">
+                    <div class="modal-content" ng-submit="submitLeaveRequest()">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="leaveModalLabel">Leave Application Form</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <form>
+                        <div class="modal-body">
+                          <div class="mb-3">
+                            <label for="type" class="form-label">Leave Type</label>
+                            <input type="text" class="form-control" id="type" ng-model="leave.type" required>
+                          </div>
+                          <div class="mb-3">
+                            <label for="from" class="form-label">From</label>
+                            <input type="date" class="form-control" id="from" ng-model="leave.startDate" required>
+                          </div>
+                          <div class="mb-3">
+                            <label for="from" class="form-label">Till</label>
+                            <input type="date" class="form-control" id="till" ng-model="leave.endDate" required>
+                          </div>
+                          <div class="mb-3">
+                            <label for="reason" class="form-label">Reason</label>
+                            <textarea class="form-control" id="reason" rows="3" ng-model="leave.reason"
+                              required></textarea>
+                          </div>
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                          <button type="submit" class="btn btn-success">Submit</button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <button class="btn btn-outline-dark w-100 rounded-3 py-2" ng-click="logout()"
+                    ng-disabled="status === 'offline'">
+                    <i class="fas fa-sign-out-alt me-2"></i>Logout
+                  </button>
+                </div>
+              </div>
+              <div id="attendanceList" class="overflow-auto" style="max-height: 350px">
+
+                <div class="list-group-item d-flex justify-content-between p-2 align-items-center mb-2 rounded-3 border"
+                  ng-repeat="item in records track by $index" ng-if="$index === 0">
+                  <div>
+                    <div class="fw-semibold">{{ item.date }}</div>
+                    <small class="text-muted">{{ item.day }}</small>
+                  </div>
+                  <div class="d-flex align-items-center mb-2">
+                    <span class="fw-bold me-2">Checkin:</span>
+                    {{item.checkin}}</div>
+                  <div class="d-flex align-items-center mb-2">
+                    <span class="fw-bold me-2">breakStart:</span>
+                    {{item.breakStart}}</div>
+                    <div class="d-flex align-items-center mb-2">
+                    <span class="fw-bold me-2">breakEnd:</span>
+                    {{item.breakEnd}}</div>
+                  <div class="d-flex align-items-center mb-2">
+                    <span class="fw-bold me-2">Checkout:</span>
+                    <input type="text" class="form-control form-control-sm w-auto" ng-model="item.checkout">
+                    <button class="btn btn-primary btn-sm ms-2" ng-click="updateCheckout(item)">Update</button>
+                  </div>
+
+                  <div class="d-flex align-items-center gap-3">
+                    <span class="badge rounded-pill" ng-class="{
+                      'bg-success': item.status === 'Present',
+                      'bg-danger': item.status === 'Absent',
+                      'bg-info': item.status === 'Leave',
+                      }">{{ item.status }}</span>
+                    <span class="fw-semibold text-danger">{{ item.hours }}</span>
+                  </div>
+                </div>
+
+
+                <div class="list-group-item d-flex justify-content-between p-2 align-items-center mb-2 rounded-3 border"
+                  ng-repeat="item in records track by $index" ng-if="$index > 0">
+                  <div>
+                    <div class="fw-semibold">{{ item.date }}</div>
+                    <small class="text-muted">{{ item.day }}</small>
+                  </div>
+                  <div class="d-flex align-items-center mb-2">
+                    <span class="fw-bold me-2">Checkin:</span>
+                    {{item.checkin}}</div>
+                  <div class="d-flex align-items-center mb-2">
+                    <span class="fw-bold me-2">breakStart:</span>
+                    {{item.breakStart}}</div>
+                    <div class="d-flex align-items-center mb-2">
+                    <span class="fw-bold me-2">breakEnd:</span>
+                    {{item.breakEnd}}</div>
+                  <div class="d-flex align-items-center mb-2">
+                    <span class="me-2 fw-bold">Checkout:</span>
+                    <span class="bg-light px-2 py-1 rounded small">{{ item.checkout }}</span>
+                  </div>
+
+                  <div class="d-flex align-items-center gap-3">
+                    <span class="badge rounded-pill" ng-class="{
+                      'bg-success': item.status === 'Present',
+                      'bg-danger': item.status === 'Absent',
+                      'bg-info': item.status === 'Leave',
+                      'bg-secondary': item.status !== 'Present' && item.status !== 'Absent' && item.status !== 'Leave'
+                      }">{{ item.status }}</span>
+                    <span class="fw-semibold text-danger">{{ item.hours }}</span>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
