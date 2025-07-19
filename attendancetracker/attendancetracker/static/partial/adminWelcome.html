@@ -142,27 +142,27 @@
                         <span>{{item.type}}</span>
                       </td>
                       <td>
-                        <strong>{{item.startDate | date:'dd MMM yyyy'}}</strong
+                        <strong>{{item.start_date | date:'dd MMM yyyy'}}</strong
                         ><br />
                       </td>
                       <td>
-                        <strong>{{item.endDate | date:'dd MMM yyyy'}}</strong
+                        <strong>{{item.end_date | date:'dd MMM yyyy'}}</strong
                         ><br />
                       </td>
                       <td>
-                        <small>{{item.submitDate | date:'dd MMM yyyy'}}</small>
+                        <small>{{item.submit_date | date:'dd MMM yyyy'}}</small>
                       </td>
                       <td>{{item.reason}}</td>
                       <td>
                         <button
                           class="btn btn-sm bg-success mt-1 text-white"
-                          ng-click="approveLeave(item)"
+                          ng-click="updateLeave(item, 'approved')"
                         >
                           Approve
                         </button>
                         <button
                           class="btn btn-sm bg-danger mt-1 text-white"
-                          ng-click="rejectLeave(item)"
+                          ng-click="updateLeave(item, 'rejected')"
                         >
                           Reject
                         </button>

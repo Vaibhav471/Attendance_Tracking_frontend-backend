@@ -1,16 +1,12 @@
 myApp.controller('welcomeController', function ($scope, attendanceRecordsService, leaveService) {
 
-    $scope.loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
+    $scope.loggedInUser = JSON.parse(sessionStorage.getItem("loggedInUser"));
     $scope.records = [];
     var currentEmail = $scope.loggedInUser ? $scope.loggedInUser.email : null;
 
     attendanceRecordsService.getAttendanceRecords().then(function (allRecords) {
         if (currentEmail) {
-            for (var i = allRecords.length - 1; i >= 0; i--) {
-                if (allRecords[i].email === currentEmail) {
-                    $scope.records.push(allRecords[i]);
-                }
-            }
+            $scope.records = allRecords;
         }
     });
 
@@ -77,31 +73,30 @@ myApp.controller('welcomeController', function ($scope, attendanceRecordsService
         const mm = String(Math.floor(netDuration.asMinutes() % 60)).padStart(2, '0');
         $scope.attendance.hours = `${hh}:${mm}`;
 
-        attendanceRecordsService.getAttendanceRecords().then(function (existingRecords) {
-            existingRecords.push($scope.attendance);
-            attendanceRecordsService.saveAllAttendanceRecords(existingRecords).then(() => {
-                $scope.records = [];
-                for (var i = existingRecords.length - 1; i >= 0; i--) {
-                    if (existingRecords[i].email === $scope.loggedInUser.email) {
-                        $scope.records.push(existingRecords[i]);
-                    }
-                }
+        attendanceRecordsService.saveAttendanceRecord($scope.attendance).then(function () {
 
-                let now = new Date();
-                $scope.attendance = {
-                    name: $scope.loggedInUser.name,
-                    email: $scope.loggedInUser.email,
-                    date: now.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }),
-                    day: now.toLocaleDateString('en-GB', { weekday: 'long' }),
-                    status: "Present",
-                    checkin: "",
-                    breakStart: "",
-                    breakEnd: "",
-                    checkout: "",
-                    hours: ""
-                };
+            console.log("attendance saved successfully")
+
+            attendanceRecordsService.getAttendanceRecords().then(function (allRecords) {
+                if (currentEmail) {
+                    $scope.records = allRecords;
+                }
             });
-        });
+
+            let now = new Date();
+            $scope.attendance = {
+                name: $scope.loggedInUser.name,
+                email: $scope.loggedInUser.email,
+                date: now.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }),
+                day: now.toLocaleDateString('en-GB', { weekday: 'long' }),
+                status: "Present",
+                checkin: "",
+                breakStart: "",
+                breakEnd: "",
+                checkout: "",
+                hours: ""
+            };
+        })
     };
 
     $scope.leave = {
@@ -116,20 +111,32 @@ myApp.controller('welcomeController', function ($scope, attendanceRecordsService
     };
 
     $scope.submitLeaveRequest = function () {
-        $scope.leave.startDate = $scope.leave.startDate.toLocaleDateString('en-GB');
-        $scope.leave.endDate = $scope.leave.endDate.toLocaleDateString('en-GB');
-        $scope.leave.submitDate = new Date();
-
-        leaveService.saveLeaveRequest($scope.leave).then(function () {
-            $scope.leave.startDate = '';
-            $scope.leave.endDate = '';
-            $scope.leave.type = '';
-            $scope.leave.reason = '';
-            $scope.leave.submitDate = '';
-
-            jQuery('#leaveModal').modal('hide');
-        });
+    const payload = {
+        name: $scope.loggedInUser.name,
+        email: $scope.loggedInUser.email,
+        type: $scope.leave.type,
+        reason: $scope.leave.reason,
+        start_date: moment($scope.leave.startDate).format("YYYY-MM-DD"), 
+        end_date: moment($scope.leave.endDate).format("YYYY-MM-DD"),//correct format
+        status: "pending"
     };
+
+    leaveService.applyLeave(payload).then(function () {
+        $scope.leave.startDate = new Date();
+        $scope.leave.endDate = new Date();
+        $scope.leave.type = '';
+        $scope.leave.reason = '';
+
+
+        jQuery('#leaveModal').modal('hide');
+
+        alert("Leave request submitted!");
+    }).catch(function (error) {
+        console.error("Failed to apply leave:", error);
+        alert("Failed to apply leave. Please try again.");
+    });
+};
+
 
     $scope.updateCheckout = function (item) {
         if (!item.checkin || !item.checkout) {
@@ -154,29 +161,20 @@ myApp.controller('welcomeController', function ($scope, attendanceRecordsService
             netDuration = moment.duration(workDuration - breakDuration);
         }
 
+        // Format hours as HH:mm
         const hh = String(Math.floor(netDuration.asMinutes() / 60)).padStart(2, '0');
         const mm = String(Math.floor(netDuration.asMinutes() % 60)).padStart(2, '0');
         item.hours = `${hh}:${mm}`;
 
-        attendanceRecordsService.getAttendanceRecords().then(function (allRecords) {
-            const updatedRecords = [];
-            for (var i = 0; i < allRecords.length; i++) {
-                const record = allRecords[i];
-                if (!(record.date === item.date && record.email === item.email)) {
-                    updatedRecords.push(record);
-                }
-            }
-            updatedRecords.push(item);
-
-            attendanceRecordsService.saveAllAttendanceRecords(updatedRecords).then(() => {
-                $scope.records = [];
-                for (var i = updatedRecords.length - 1; i >= 0; i--) {
-                    if (updatedRecords[i].email === item.email) {
-                        $scope.records.push(updatedRecords[i]);
-                    }
-                }
+        attendanceRecordsService.updateAttendanceRecord(item.id, item)
+            .then(function (response) {
+                console.log("Checkout updated successfully:", response);
+                alert("Checkout updated successfully!");
+            })
+            .catch(function (error) {
+                console.error("Failed to update checkout:", error);
+                alert("Failed to update checkout. Please try again.");
             });
-        });
     };
 
     // Sidebar toggle

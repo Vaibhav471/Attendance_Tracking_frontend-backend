@@ -1,20 +1,26 @@
 myApp.controller("leaveController", function ($scope, leaveService) {
     $scope.loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
-    const email = $scope.loggedInUser?.email;
 
-    $scope.leaveRequests = [];
-    $scope.leaveHistory = [];
+    $scope.leaveRequests = [];   
+    $scope.leaveHistory = [];    
     $scope.leaveRequestsCount = 0;
 
-    leaveService.getLeaveRequestsByEmail(email).then(function (requests) {
-        $scope.leaveRequests = requests;
-        $scope.leaveRequestsCount = requests.length;
+    //Fetch pending leaves
+    leaveService.getPendingLeaves().then(function (pendingLeaves) {
+        $scope.leaveRequests = pendingLeaves;
+        $scope.leaveRequestsCount = pendingLeaves.length;
+    }).catch(function (error) {
+        console.error("Failed to load pending leaves:", error);
     });
 
-    leaveService.getLeaveHistoryByEmail(email).then(function (history) {
-        $scope.leaveHistory = history;
+    //Fetch non-pending leaves
+    leaveService.getNonPendingLeaves().then(function (historyLeaves) {
+        $scope.leaveHistory = historyLeaves;
+    }).catch(function (error) {
+        console.error("Failed to load leave history:", error);
     });
 
+    //Sidebar toggle
     jQuery(document).ready(function () {
         jQuery("#sidebarToggle").click(function () {
             jQuery("#sidebar").addClass("show");
@@ -27,11 +33,15 @@ myApp.controller("leaveController", function ($scope, leaveService) {
         });
 
         jQuery('#pendingLeaves').on('show.bs.collapse', function () {
-            jQuery('.collapse-toggle i.fas').removeClass('fa-chevron-down').addClass('fa-chevron-up');
+            jQuery('.collapse-toggle i.fas')
+                .removeClass('fa-chevron-down')
+                .addClass('fa-chevron-up');
         });
 
         jQuery('#pendingLeaves').on('hide.bs.collapse', function () {
-            jQuery('.collapse-toggle i.fas').removeClass('fa-chevron-up').addClass('fa-chevron-down');
+            jQuery('.collapse-toggle i.fas')
+                .removeClass('fa-chevron-up')
+                .addClass('fa-chevron-down');
         });
 
         jQuery('.table tbody tr').hover(

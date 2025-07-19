@@ -1,48 +1,76 @@
-angular.module('myApp').service('leaveService', function ($http, $q) {
-    const API_BASE_URL = '/api/leaveRequests';
-    const API_HISTORY_URL = '/api/leaveHistory';
+angular.module('myApp').service('leaveService', function($http) {
 
-    this.getLeaveRequests = function () {
-        return $http.get(API_BASE_URL)
-            .then(res => res.data)
-            .catch(() => {
-                console.warn('Using localStorage fallback for leave requests');
-                const localData = localStorage.getItem('leaveRequests');
-                return $q.resolve(JSON.parse(localData || '[]'));
-            });
+    // Base endpoint for Django DRF LeaveViewSet
+    const API_BASE_URL = "http://localhost:8000/leave/";
+
+    //Get pending leaves
+    this.getPendingLeaves = function() {
+        const token = sessionStorage.getItem('authToken');
+        return $http.get(`${API_BASE_URL}pending/`, {
+            headers: {
+                'Authorization': `Token ${token}`,
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.data)
+        .catch(error => {
+            console.error("Error fetching pending leaves:", error);
+            return Promise.reject(error);
+        });
     };
 
-    this.getLeaveHistory = function () {
-        return $http.get(API_HISTORY_URL)
-            .then(res => res.data)
-            .catch(() => {
-                console.warn('Using localStorage fallback for leave history');
-                const localData = localStorage.getItem('leaveHistory');
-                return $q.resolve(JSON.parse(localData || '[]'));
-            });
+    //Get non-pending leaves
+    this.getNonPendingLeaves = function() {
+        const token = sessionStorage.getItem('authToken');
+        return $http.get(`${API_BASE_URL}non-pending/`, {
+            headers: {
+                'Authorization': `Token ${token}`,
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.data)
+        .catch(error => {
+            console.error("Error fetching non-pending leaves:", error);
+            return Promise.reject(error);
+        });
     };
 
-    this.saveLeaveRequest = function (leaveRequest) {
-        return $http.post(API_BASE_URL, leaveRequest)
-            .then(res => res.data)
-            .catch(() => {
-                console.warn('Saving leave request to localStorage');
-                const localData = JSON.parse(localStorage.getItem('leaveRequests') || '[]');
-                localData.push(leaveRequest);
-                localStorage.setItem('leaveRequests', JSON.stringify(localData));
-                return $q.resolve({ status: 'saved-locally' });
-            });
+    //Submit a new leave request
+    this.applyLeave = function(leaveData) {
+        const token = sessionStorage.getItem('authToken');
+        return $http.post(`${API_BASE_URL}leaves/`, leaveData, {
+            headers: {
+                'Authorization': `Token ${token}`,
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.data)
+        .catch(error => {
+            console.error("Error applying leave:", error);
+            return Promise.reject(error);
+        });
     };
 
-    this.getLeaveRequestsByEmail = function (email) {
-        return this.getLeaveRequests().then(requests =>
-            requests.filter(req => req.email === email)
-        );
+    //Fetch ALL pending leaves of ALL users (NO token required)
+    this.getAllPendingLeaves = function() {
+        return $http.get(`${API_BASE_URL}all-pending/`)
+        .then(response => response.data)
+        .catch(error => {
+            console.error("Error fetching all pending leaves:", error);
+            return Promise.reject(error);
+        });
     };
 
-    this.getLeaveHistoryByEmail = function (email) {
-        return this.getLeaveHistory().then(history =>
-            history.filter(h => h.email === email)
-        );
+    //Update leave status by ID (NO token required)
+    this.updateLeaveStatus = function(leaveId, newStatus) {
+        return $http.patch(`${API_BASE_URL}update-status/${leaveId}/`, 
+            { status: newStatus },
+            { headers: { 'Content-Type': 'application/json' } }
+        )
+        .then(response => response.data)
+        .catch(error => {
+            console.error(`Error updating leave ${leaveId} status:`, error);
+            return Promise.reject(error);
+        });
     };
 });

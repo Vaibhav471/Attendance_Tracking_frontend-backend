@@ -8,5 +8,5 @@ router.register('attendance', AttendanceViewSet, basename='attendance')
 
 urlpatterns = [
     path('hello/', hello),
-    path('api/', include(router.urls))
+    path('', include(router.urls))
 ]

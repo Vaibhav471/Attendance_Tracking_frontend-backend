@@ -26,6 +26,6 @@ urlpatterns = [
     path('api-token-auth/', obtain_auth_token, name='api_token_auth'),
     path('attendance/', include('attendance.urls')),
     path('leave/', include('leave.urls')),
-
+    path('get-user-by-token/',views.get_user_from_token)
 
 ]
