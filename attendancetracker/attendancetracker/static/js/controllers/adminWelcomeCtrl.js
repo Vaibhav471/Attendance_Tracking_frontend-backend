@@ -3,7 +3,7 @@ myApp.controller('adminWelcomeController', function ($scope, userService, leaveS
     $scope.employeesAttendanceStatusToday = userService.getUsers();
     $scope.leaveRequests = [];
 
-    // ✅ Function to fetch all pending leaves
+    //Function to fetch all pending leaves
     function loadPendingLeaves() {
         leaveService.getAllPendingLeaves()
             .then(function (requests) {
@@ -14,14 +14,13 @@ myApp.controller('adminWelcomeController', function ($scope, userService, leaveS
             });
     }
 
-    // ✅ Initial load
+    //Initial load
     loadPendingLeaves();
 
-    // ✅ Approve or reject a leave and refresh pending list
+    //Approve or reject a leave
     $scope.updateLeave = function (item, newStatus) {
         leaveService.updateLeaveStatus(item.id, newStatus)
             .then(function () {
-                // After updating status, fetch fresh pending list
                 loadPendingLeaves();
             })
             .catch(function (error) {
@@ -29,7 +28,7 @@ myApp.controller('adminWelcomeController', function ($scope, userService, leaveS
             });
     };
 
-    // ✅ Sidebar toggle
+    //Sidebar toggle
     jQuery(document).ready(function () {
         jQuery("#sidebarToggle").click(function () {
             jQuery("#sidebar").addClass("show");

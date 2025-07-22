@@ -111,31 +111,53 @@ myApp.controller('welcomeController', function ($scope, attendanceRecordsService
     };
 
     $scope.submitLeaveRequest = function () {
-    const payload = {
-        name: $scope.loggedInUser.name,
-        email: $scope.loggedInUser.email,
-        type: $scope.leave.type,
-        reason: $scope.leave.reason,
-        start_date: moment($scope.leave.startDate).format("YYYY-MM-DD"), 
-        end_date: moment($scope.leave.endDate).format("YYYY-MM-DD"),//correct format
-        status: "pending"
+
+        const today = moment().startOf('day');
+        const startDate = moment($scope.leave.startDate);
+        const endDate = moment($scope.leave.endDate);
+
+        if (startDate.isBefore(today)) {
+            alert("Start date cannot be before today!");
+            return;
+        }
+        if (endDate.isBefore(today)) {
+            alert("End date cannot be before today!");
+            return;
+        }
+
+        if (startDate.isAfter(endDate)) {
+            alert("End date must be after or equal to start date!");
+            return;
+        }
+
+        const payload = {
+            name: $scope.loggedInUser.name,
+            email: $scope.loggedInUser.email,
+            type: $scope.leave.type,
+            reason: $scope.leave.reason,
+            start_date: startDate.format("YYYY-MM-DD"),
+            end_date: endDate.format("YYYY-MM-DD"),
+            status: "pending"
+        };
+
+        leaveService.applyLeave(payload)
+            .then(function () {
+                // Reset form after success
+                $scope.leave.startDate = new Date();
+                $scope.leave.endDate = new Date();
+                $scope.leave.type = '';
+                $scope.leave.reason = '';
+
+                jQuery('#leaveModal').modal('hide');
+
+                alert("Leave request submitted!");
+            })
+            .catch(function (error) {
+                console.error("Failed to apply leave:", error);
+                alert("Failed to apply leave. Please try again.");
+            });
     };
 
-    leaveService.applyLeave(payload).then(function () {
-        $scope.leave.startDate = new Date();
-        $scope.leave.endDate = new Date();
-        $scope.leave.type = '';
-        $scope.leave.reason = '';
-
-
-        jQuery('#leaveModal').modal('hide');
-
-        alert("Leave request submitted!");
-    }).catch(function (error) {
-        console.error("Failed to apply leave:", error);
-        alert("Failed to apply leave. Please try again.");
-    });
-};
 
 
     $scope.updateCheckout = function (item) {

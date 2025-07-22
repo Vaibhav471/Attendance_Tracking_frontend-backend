@@ -50,7 +50,6 @@ def update_leave_status(request, leave_id):
     except Leave.DoesNotExist:
         return Response({"error": "Leave not found"}, status=status.HTTP_404_NOT_FOUND)
 
-    # Expecting request body: { "status": "approved" }
     new_status = request.data.get("status")
     if not new_status:
         return Response({"error": "Status is required"}, status=status.HTTP_400_BAD_REQUEST)
