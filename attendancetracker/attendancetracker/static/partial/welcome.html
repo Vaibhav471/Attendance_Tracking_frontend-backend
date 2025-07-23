@@ -123,7 +123,7 @@
             <div class="card shadow-sm border-0 rounded-4">
               <div class="card-body text-center">
                 <h6 class="text-muted mb-2">Break Start</h6>
-                <h5 class="text-warning fw-semibold">{{ attendance.breakStart || '--:--' }}</h5>
+                <h5 class="text-warning fw-semibold">{{ attendance.break_start || '--:--' }}</h5>
               </div>
             </div>
           </div>
@@ -132,7 +132,7 @@
             <div class="card shadow-sm border-0 rounded-4">
               <div class="card-body text-center">
                 <h6 class="text-muted mb-2">Break End</h6>
-                <h5 class="text-info fw-semibold">{{ attendance.breakEnd || '--:--' }}</h5>
+                <h5 class="text-info fw-semibold">{{ attendance.break_end || '--:--' }}</h5>
               </div>
             </div>
           </div>
@@ -152,11 +152,17 @@
                 <h5 class="card-title mb-0 fw-bold">Your Attendance</h5>
               </div>
 
+              <!-- Show this only when today's attendance is marked -->
+              <div class="alert alert-danger text-center mt-2" ng-if="isTodayMarked">
+                <strong>Today's Attendance is already marked.</strong>
+              </div>
+
+
               <!-- Quick Actions -->
               <div class="row g-3 mb-4">
                 <div class="col-6">
-                  <button class="btn btn-success w-100 rounded-3 py-2" ng-disabled="status === 'online'"
-                    id="mark-present" ng-click="markAttendance()">
+                  <button class="btn btn-success w-100 rounded-3 py-2"
+                    ng-disabled="isTodayMarked || status === 'online'" id="mark-present" ng-click="markAttendance()">
                     <i class="fas fa-check me-2"></i>Mark Present
                   </button>
                 </div>
@@ -221,7 +227,8 @@
               </div>
               <div id="attendanceList" class="overflow-auto" style="max-height: 350px">
 
-                <div class="list-group-item d-flex justify-content-between p-2 align-items-center mb-2 rounded-3 border"
+                <div
+                  class="list-group-item d-flex justify-content-between p-2 align-items-center mb-2 rounded-3 border bg-info bg-opacity-25"
                   ng-repeat="item in records track by $index" ng-if="$index === 0">
                   <div>
                     <div class="fw-semibold">{{ item.date }}</div>
@@ -229,28 +236,27 @@
                   </div>
                   <div class="d-flex align-items-center mb-2">
                     <span class="fw-bold me-2">Checkin:</span>
-                    {{item.checkin}}</div>
+                    {{formatTime(item.checkin)}}
+                  </div>
                   <div class="d-flex align-items-center mb-2">
                     <span class="fw-bold me-2">breakStart:</span>
-                    {{item.breakStart}}</div>
-                    <div class="d-flex align-items-center mb-2">
+                    {{formatTime(item.break_start)}}
+                  </div>
+                  <div class="d-flex align-items-center mb-2">
                     <span class="fw-bold me-2">breakEnd:</span>
-                    {{item.breakEnd}}</div>
+                    {{formatTime(item.break_end)}}
+                  </div>
                   <div class="d-flex align-items-center mb-2">
                     <span class="fw-bold me-2">Checkout:</span>
                     <input type="text" class="form-control form-control-sm w-auto" ng-model="item.checkout">
                     <button class="btn btn-primary btn-sm ms-2" ng-click="updateCheckout(item)">Update</button>
                   </div>
-
                   <div class="d-flex align-items-center gap-3">
-                    <span class="badge rounded-pill" ng-class="{
-                      'bg-success': item.status === 'Present',
-                      'bg-danger': item.status === 'Absent',
-                      'bg-info': item.status === 'Leave',
-                      }">{{ item.status }}</span>
+                    <span class="badge rounded-pill" ng-class="{ 'bg-success': item.status === 'Present','bg-danger': item.status === 'Absent','bg-info': item.status === 'Leave'}">{{ item.status }}</span>
                     <span class="fw-semibold text-danger">{{ item.hours }}</span>
                   </div>
                 </div>
+
 
 
                 <div class="list-group-item d-flex justify-content-between p-2 align-items-center mb-2 rounded-3 border"
@@ -261,16 +267,19 @@
                   </div>
                   <div class="d-flex align-items-center mb-2">
                     <span class="fw-bold me-2">Checkin:</span>
-                    {{item.checkin}}</div>
+                    {{formatTime(item.checkin)}}
+                  </div>
                   <div class="d-flex align-items-center mb-2">
                     <span class="fw-bold me-2">breakStart:</span>
-                    {{item.breakStart}}</div>
-                    <div class="d-flex align-items-center mb-2">
+                    {{formatTime(item.break_start)}}
+                  </div>
+                  <div class="d-flex align-items-center mb-2">
                     <span class="fw-bold me-2">breakEnd:</span>
-                    {{item.breakEnd}}</div>
+                    {{formatTime(item.break_end)}}
+                  </div>
                   <div class="d-flex align-items-center mb-2">
                     <span class="me-2 fw-bold">Checkout:</span>
-                    <span class="bg-light px-2 py-1 rounded small">{{ item.checkout }}</span>
+                    <span class="bg-light px-2 py-1 rounded small">{{ formatTime(item.checkout)}}</span>
                   </div>
 
                   <div class="d-flex align-items-center gap-3">

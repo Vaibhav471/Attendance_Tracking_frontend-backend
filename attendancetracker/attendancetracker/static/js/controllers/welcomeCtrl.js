@@ -3,12 +3,38 @@ myApp.controller('welcomeController', function ($scope, attendanceRecordsService
     $scope.loggedInUser = JSON.parse(sessionStorage.getItem("loggedInUser"));
     $scope.records = [];
     var currentEmail = $scope.loggedInUser ? $scope.loggedInUser.email : null;
+    $scope.isTodayMarked = false
+
+    $scope.formatTime = function (timeStr) {
+        if (!timeStr) return '—';  // if null/empty
+        return moment(timeStr, "HH:mm:ss").format("hh:mm A");
+    };
+
 
     attendanceRecordsService.getAttendanceRecords().then(function (allRecords) {
         if (currentEmail) {
             $scope.records = allRecords;
         }
     });
+
+    function checkAttendanceForSameDate(att) {
+        let isTodayMarked = att.some(item =>
+            moment(item.date, "D MMMM YYYY").isSame(moment(), 'day')
+        );
+
+        if (isTodayMarked) {
+            console.log("Attendance for today is already marked");
+            $scope.isTodayMarked = true;
+        } else {
+            console.log("No attendance marked for today yet");
+        }
+    }
+
+    $scope.$watch('records', function (newVal, oldVal) {
+        if (newVal !== oldVal) {
+            checkAttendanceForSameDate(newVal);
+        }
+    }, true);
 
     $scope.status = 'offline';
     $scope.break = false;
@@ -21,8 +47,8 @@ myApp.controller('welcomeController', function ($scope, attendanceRecordsService
         day: now.toLocaleDateString('en-GB', { weekday: 'long' }),
         status: "Present",
         checkin: "",
-        breakStart: "",
-        breakEnd: "",
+        break_start: "",
+        break_end: "",
         checkout: "",
         hours: ""
     };
@@ -34,11 +60,11 @@ myApp.controller('welcomeController', function ($scope, attendanceRecordsService
 
     $scope.markBreak = function () {
         $scope.break = !$scope.break;
-        const time = new Date().toTimeString().slice(0, 5);
+        const time = new Date().toTimeString().slice(0, 8);
         if ($scope.break) {
-            $scope.attendance.breakStart = time;
+            $scope.attendance.break_start = time;
         } else {
-            $scope.attendance.breakEnd = time;
+            $scope.attendance.break_end = time;
         }
     };
 
@@ -50,19 +76,19 @@ myApp.controller('welcomeController', function ($scope, attendanceRecordsService
             return;
         }
 
-        $scope.attendance.checkout = new Date().toTimeString().slice(0, 5);
+        $scope.attendance.checkout = new Date().toTimeString().slice(0, 8);
 
         const checkin = moment($scope.attendance.checkin, "HH:mm");
         const checkout = moment($scope.attendance.checkout, "HH:mm");
 
         let netDuration;
 
-        if ($scope.attendance.breakStart && !$scope.attendance.breakEnd) {
-            const breakStart = moment($scope.attendance.breakStart, "HH:mm");
+        if ($scope.attendance.break_start && !$scope.attendance.break_end) {
+            const breakStart = moment($scope.attendance.break_start, "HH:mm");
             netDuration = moment.duration(breakStart.diff(checkin));
         } else {
-            const breakStart = $scope.attendance.breakStart ? moment($scope.attendance.breakStart, "HH:mm") : moment("00:00", "HH:mm");
-            const breakEnd = $scope.attendance.breakEnd ? moment($scope.attendance.breakEnd, "HH:mm") : moment("00:00", "HH:mm");
+            const breakStart = $scope.attendance.break_start ? moment($scope.attendance.break_start, "HH:mm") : moment("00:00", "HH:mm");
+            const breakEnd = $scope.attendance.break_end ? moment($scope.attendance.break_end, "HH:mm") : moment("00:00", "HH:mm");
 
             const workDuration = moment.duration(checkout.diff(checkin));
             const breakDuration = moment.duration(breakEnd.diff(breakStart));
@@ -91,8 +117,8 @@ myApp.controller('welcomeController', function ($scope, attendanceRecordsService
                 day: now.toLocaleDateString('en-GB', { weekday: 'long' }),
                 status: "Present",
                 checkin: "",
-                breakStart: "",
-                breakEnd: "",
+                break_start: "",
+                break_end: "",
                 checkout: "",
                 hours: ""
             };
