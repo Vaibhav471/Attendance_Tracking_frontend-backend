@@ -5,21 +5,55 @@ myApp.controller('welcomeController', function ($scope, attendanceRecordsService
     var currentEmail = $scope.loggedInUser ? $scope.loggedInUser.email : null;
     $scope.isTodayMarked = false
 
+    let now = new Date();
+    $scope.attendance = {
+        name: $scope.loggedInUser.name,
+        email: $scope.loggedInUser.email,
+        date: now.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }),
+        day: now.toLocaleDateString('en-GB', { weekday: 'long' }),
+        status: "Present",
+        checkin: null,
+        break_start: null,
+        break_end: null,
+        checkout: null,
+        hours: ""
+    };
+
+    $scope.status = 'offline';
+    $scope.break = false;
+
     $scope.formatTime = function (timeStr) {
         if (!timeStr) return '—';  // if null/empty
         return moment(timeStr, "HH:mm:ss").format("hh:mm A");
     };
 
-
     attendanceRecordsService.getAttendanceRecords().then(function (allRecords) {
+        let att = allRecords.filter(item => (item.date === $scope.attendance.date && item.checkout === null));
         if (currentEmail) {
-            $scope.records = allRecords;
+            $scope.records = allRecords.filter(item =>
+                !(item.date === $scope.attendance.date && item.checkout === null)
+            );
+        }
+
+        if (att) {
+            $scope.attendance.checkin = att[0].checkin
+            $scope.status = 'online'
+
+            if (att[0].break_start !== null) {
+                $scope.attendance.break_start = att[0].break_start
+                $scope.break = true
+            }
+
+            if (att[0].break_end !== null) {
+                $scope.attendance.break_end = att[0].break_end
+                $scope.break = false
+            }
         }
     });
 
     function checkAttendanceForSameDate(att) {
         let isTodayMarked = att.some(item =>
-            moment(item.date, "D MMMM YYYY").isSame(moment(), 'day')
+            moment(item.date, "D MMMM YYYY").isSame(moment(), 'day') && item.checkout !== null
         );
 
         if (isTodayMarked) {
@@ -36,40 +70,36 @@ myApp.controller('welcomeController', function ($scope, attendanceRecordsService
         }
     }, true);
 
-    $scope.status = 'offline';
-    $scope.break = false;
-
-    let now = new Date();
-    $scope.attendance = {
-        name: $scope.loggedInUser.name,
-        email: $scope.loggedInUser.email,
-        date: now.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }),
-        day: now.toLocaleDateString('en-GB', { weekday: 'long' }),
-        status: "Present",
-        checkin: "",
-        break_start: "",
-        break_end: "",
-        checkout: "",
-        hours: ""
-    };
 
     $scope.markAttendance = function () {
         $scope.status = 'online';
         $scope.attendance.checkin = new Date().toTimeString().slice(0, 5);
+        attendanceRecordsService.saveAttendanceRecord($scope.attendance);
     };
 
     $scope.markBreak = function () {
         $scope.break = !$scope.break;
         const time = new Date().toTimeString().slice(0, 8);
         if ($scope.break) {
-            $scope.attendance.break_start = time;
+            attendanceRecordsService.getAttendanceByDate($scope.attendance.date).then(function (att) {
+                console.log("AAAYAA", att[0])
+                $scope.attendance.break_start = time;
+                att[0].break_start = time;
+                attendanceRecordsService.updateAttendanceRecord(att[0].id, att[0]);
+            })
+
         } else {
-            $scope.attendance.break_end = time;
+            attendanceRecordsService.getAttendanceByDate($scope.attendance.date).then(function (att) {
+                $scope.attendance.break_end = time;
+                att[0].break_end = time;
+                attendanceRecordsService.updateAttendanceRecord(att[0].id, att[0]);
+            })
         }
     };
 
     $scope.logout = function () {
-        $scope.status = 'offline';
+        attendanceRecordsService.getAttendanceByDate($scope.attendance.date).then(function (att){
+            $scope.status = 'offline';
 
         if (!$scope.loggedInUser) {
             alert("No user logged in.");
@@ -77,6 +107,7 @@ myApp.controller('welcomeController', function ($scope, attendanceRecordsService
         }
 
         $scope.attendance.checkout = new Date().toTimeString().slice(0, 8);
+        att[0].checkout = new Date().toTimeString().slice(0, 8);
 
         const checkin = moment($scope.attendance.checkin, "HH:mm");
         const checkout = moment($scope.attendance.checkout, "HH:mm");
@@ -98,8 +129,9 @@ myApp.controller('welcomeController', function ($scope, attendanceRecordsService
         const hh = String(Math.floor(netDuration.asMinutes() / 60)).padStart(2, '0');
         const mm = String(Math.floor(netDuration.asMinutes() % 60)).padStart(2, '0');
         $scope.attendance.hours = `${hh}:${mm}`;
+        att[0].hours = `${hh}:${mm}`;
 
-        attendanceRecordsService.saveAttendanceRecord($scope.attendance).then(function () {
+        attendanceRecordsService.updateAttendanceRecord(att[0].id,att[0]).then(function () {
 
             console.log("attendance saved successfully")
 
@@ -123,6 +155,9 @@ myApp.controller('welcomeController', function ($scope, attendanceRecordsService
                 hours: ""
             };
         })
+        })
+
+        
     };
 
     $scope.leave = {

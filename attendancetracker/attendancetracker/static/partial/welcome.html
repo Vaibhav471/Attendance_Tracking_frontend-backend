@@ -21,40 +21,10 @@
 
       <nav class="flex-grow-1 p-3 overflow-auto">
         <ul class="nav flex-column">
-          <li class="nav-item">
-            <a class="nav-link active bg-primary text-white rounded-3 mb-2" href="#">
-              <i class="fas fa-home me-2"></i>Dashboard
-            </a>
-          </li>
-          <li class="nav-item">
-            <button ng-disabled="status === 'online'" class="nav-link text-dark rounded-3 mb-2"
-              ng-click="markAttendance()">
-              <i class="fas fa-calendar-check me-2"></i>Mark Attendance
-            </button>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link text-dark rounded-3 mb-2" href="#">
-              <i class="fas fa-history me-2"></i>Attendance History
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link text-dark rounded-3 mb-2" href="#">
-              <i class="fas fa-users me-2"></i>Team Status
-            </a>
-          </li>
+          
           <li class="nav-item">
             <a class="nav-link text-dark rounded-3 mb-2" href='#!/leave-details'>
               <i class="fas fa-file-alt me-2"></i>Leave Details
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link text-dark rounded-3 mb-2" href="#">
-              <i class="fas fa-chart-bar me-2"></i>Reports
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link text-dark rounded-3 mb-2" href="#">
-              <i class="fas fa-cog me-2"></i>Settings
             </a>
           </li>
         </ul>
@@ -114,7 +84,7 @@
             <div class="card shadow-sm border-0 rounded-4">
               <div class="card-body text-center">
                 <h6 class="text-muted mb-2">Logged In</h6>
-                <h5 class="text-success fw-semibold">{{ attendance.checkin || '--:--' }}</h5>
+                <h5 class="text-success fw-semibold">{{attendance.checkin? formatTime(attendance.checkin) : '--:--' }}</h5>
               </div>
             </div>
           </div>
@@ -123,7 +93,7 @@
             <div class="card shadow-sm border-0 rounded-4">
               <div class="card-body text-center">
                 <h6 class="text-muted mb-2">Break Start</h6>
-                <h5 class="text-warning fw-semibold">{{ attendance.break_start || '--:--' }}</h5>
+                <h5 class="text-warning fw-semibold">{{ attendance.break_start ? formatTime(attendance.break_start) : '--:--' }}</h5>
               </div>
             </div>
           </div>
@@ -132,7 +102,7 @@
             <div class="card shadow-sm border-0 rounded-4">
               <div class="card-body text-center">
                 <h6 class="text-muted mb-2">Break End</h6>
-                <h5 class="text-info fw-semibold">{{ attendance.break_end || '--:--' }}</h5>
+                <h5 class="text-info fw-semibold">{{attendance.break_end? formatTime(attendance.break_end) : '--:--' }}</h5>
               </div>
             </div>
           </div>

@@ -78,7 +78,7 @@ angular.module('myApp').service('attendanceRecordsService', function ($http, $q)
             return Promise.reject("No token found. Please log in again.");
         }
 
-        return $http.get(`${API_BY_DATE_URL}?date=${encodeURIComponent(dateString)}`, {
+        return $http.get(`http://localhost:8000/attendance/by-date/?date=${encodeURIComponent(dateString)}`, {
             headers: {
                 'Authorization': `Token ${token}`
             }
