@@ -23,7 +23,7 @@ myApp.controller('welcomeController', function ($scope, attendanceRecordsService
     $scope.break = false;
 
     $scope.formatTime = function (timeStr) {
-        if (!timeStr) return '—';  // if null/empty
+        if (!timeStr) return '—';
         return moment(timeStr, "HH:mm:ss").format("hh:mm A");
     };
 
@@ -173,18 +173,8 @@ myApp.controller('welcomeController', function ($scope, attendanceRecordsService
 
     $scope.submitLeaveRequest = function () {
 
-        const today = moment().startOf('day');
         const startDate = moment($scope.leave.startDate);
         const endDate = moment($scope.leave.endDate);
-
-        if (startDate.isBefore(today)) {
-            alert("Start date cannot be before today!");
-            return;
-        }
-        if (endDate.isBefore(today)) {
-            alert("End date cannot be before today!");
-            return;
-        }
 
         if (startDate.isAfter(endDate)) {
             alert("End date must be after or equal to start date!");
